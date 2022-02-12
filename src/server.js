@@ -25,6 +25,14 @@ wsServer.on("connection", (socket) => {
     done(); // frontend의 function 을 호출할 수 있음.
     socket.to(roomName).emit("welcome"); // socket.io는 나를 제외한 사람에게 메시지를 보냄
   });
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) => socket.to(room).emit("bye"));
+  });
+  // 새로운 메세지가 받으면 다음과 같이 실행
+  socket.on("new_message", (msg, room, done) => {
+    socket.to(room).emit("new_message", msg);
+    done();
+  });
 });
 
 httpServer.listen(3000, handleListen);
