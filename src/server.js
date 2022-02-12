@@ -22,7 +22,8 @@ wsServer.on("connection", (socket) => {
 
   socket.on("enter_room", (roomName, done) => {
     socket.join(roomName);
-    done();
+    done(); // frontend의 function 을 호출할 수 있음.
+    socket.to(roomName).emit("welcome"); // socket.io는 나를 제외한 사람에게 메시지를 보냄
   });
 });
 
