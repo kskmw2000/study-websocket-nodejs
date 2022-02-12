@@ -18,7 +18,7 @@ const wsServer = SocketIO(httpServer);
 function publicRooms() {
   // const sids = wsServer.sockets.adapter.sids;
   // const rooms = wsServer.sockets.adapter.rooms;
-  const { sid, rooms } = wsServer.sockets.adapter;
+  const { sids, rooms } = wsServer.sockets.adapter;
 
   const publicRooms = [];
   rooms.forEach((_, key) => {
@@ -40,11 +40,15 @@ wsServer.on("connection", (socket) => {
     socket.join(roomName);
     done(); // frontend의 function 을 호출할 수 있음.
     socket.to(roomName).emit("welcome", socket.nickname); // socket.io는 나를 제외한 사람에게 메시지를 보냄
+    wsServer.sockets.emit("room_change", publicRooms());
   });
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) =>
       socket.to(room).emit("bye", socket.nickname)
     );
+  });
+  socket.on("disconnect", () => {
+    wsServer.sockets.emit("room_change", publicRooms());
   });
   // 새로운 메세지가 받으면 다음과 같이 실행
   socket.on("new_message", (msg, room, done) => {
